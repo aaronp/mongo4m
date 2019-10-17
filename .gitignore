@@ -1,0 +1,11 @@
+.DS_Store
+package-lock.json
+node_modules
+.metals
+*.log
+target
+.idea
+.idea_modules
+out
+.srl
+.target
