@@ -14,6 +14,7 @@ import org.scalatest.GivenWhenThen
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
+import io.circe.syntax._
 
 trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
 
@@ -37,7 +38,6 @@ trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
                   } }"""
         )
 
-        import io.circe.syntax._
         val query = new DbQuery(
           query = Option(Filters.eq("record.a", true)),
           projection = Option(Projections.include("record.number")),
@@ -89,7 +89,6 @@ trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
         sortFields = Seq("meh", "x.y"),
         ascending = false
       )
-      import io.circe.syntax._
       val json = query.asJson
       val Right(backAgain) = json.as[DbQuery]
 

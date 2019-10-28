@@ -18,7 +18,7 @@ case class CollectionSettings(dbConfig: MongoConnect.DatabaseConfig,
 }
 object CollectionSettings {
   def apply(rootConfig: Config, collectionName: String): CollectionSettings = {
-    forMongoConfig(rootConfig.getConfig("pipelines.mongo"), collectionName)
+    forMongoConfig(rootConfig.getConfig("mongo4m"), collectionName)
   }
   def forMongoConfig(mongoConfig: Config,
                      collectionName: String): CollectionSettings = {

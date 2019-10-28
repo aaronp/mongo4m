@@ -228,7 +228,7 @@ object MongoConnect extends LowPriorityMongoImplicits {
   }
 
   def apply(rootConfig: Config): MongoConnect =
-    forMongoConfig(rootConfig.getConfig("pipelines.mongo"))
+    forMongoConfig(rootConfig.getConfig("mongo4m"))
 
   def forMongoConfig(config: Config): MongoConnect = new MongoConnect(config)
 }

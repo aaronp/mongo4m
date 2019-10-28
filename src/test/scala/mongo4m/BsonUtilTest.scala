@@ -8,11 +8,6 @@ import io.circe.literal._
 
 class BsonUtilTest extends WordSpec with Matchers {
 
-  def parseNum(bson: BsonDocument) = {
-    val got = BsonUtil.fromBson(bson)
-    got.get.asObject.get.toMap("number").asNumber.get
-  }
-
   "BsonUtil.bsonAsDocument" should {
     "convert bson into BsonDocuments" in {
       val q: Bson = Filters.eq("foo", 2)
@@ -43,4 +38,10 @@ class BsonUtilTest extends WordSpec with Matchers {
       parseNum(bson).toInt shouldBe Some(Int.MaxValue)
     }
   }
+
+  def parseNum(bson: BsonDocument) = {
+    val got = BsonUtil.fromBson(bson)
+    got.get.asObject.get.toMap("number").asNumber.get
+  }
+
 }
