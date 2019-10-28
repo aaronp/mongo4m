@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.bson.conversions.Bson
@@ -11,7 +11,6 @@ class BsonUtilTest extends WordSpec with Matchers {
     val got = BsonUtil.fromBson(bson)
     got.get.asObject.get.toMap("number").asNumber.get
   }
-  import io.circe.literal._
 
   "BsonUtil.bsonAsDocument" should {
     "convert bson into BsonDocuments" in {

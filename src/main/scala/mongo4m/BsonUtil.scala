@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import java.util.Base64
 
@@ -31,7 +31,8 @@ object BsonUtil {
 
   var defaultRegistry: CodecRegistry = MongoClient.DEFAULT_CODEC_REGISTRY
 
-  def bsonAsDocument(bson: Bson)(implicit registry: CodecRegistry = defaultRegistry): BsonDocument = {
+  def bsonAsDocument(bson: Bson)(implicit registry: CodecRegistry =
+                                   defaultRegistry): BsonDocument = {
     bson.toBsonDocument(classOf[BsonDocument], registry)
   }
 
@@ -68,18 +69,18 @@ object BsonUtil {
 
   def bsonValueAsJson(value: org.bson.BsonValue): Json = {
     def asDouble = {
-      Json.fromDouble(value.asDouble().doubleValue()).getOrElse{
+      Json.fromDouble(value.asDouble().doubleValue()).getOrElse {
         Json.fromBigDecimal(value.asDecimal128().getValue.bigDecimalValue)
       }
     }
     import scala.collection.JavaConverters._
     if (value.isArray) {
       val a: BsonArray = value.asArray()
-      val records      = a.getValues.asScala.map(bsonValueAsJson)
+      val records = a.getValues.asScala.map(bsonValueAsJson)
       Json.arr(records: _*)
     } else if (value.isBinary) {
       val binaryData = value.asBinary.getData
-      val base64     = Base64.getEncoder.encodeToString(binaryData)
+      val base64 = Base64.getEncoder.encodeToString(binaryData)
       Json.fromString(base64)
     } else if (value.isBoolean) {
       Json.fromBoolean(value.asBoolean().getValue)
@@ -88,7 +89,7 @@ object BsonUtil {
     } else if (value.isDBPointer) {
       Json.obj(
         "pointer" -> Json.fromString(value.asDBPointer().getNamespace),
-        "id"      -> Json.fromString(value.asDBPointer().getId.toHexString)
+        "id" -> Json.fromString(value.asDBPointer().getId.toHexString)
       )
     } else if (value.isDecimal128) {
       asDouble
@@ -122,29 +123,37 @@ object BsonUtil {
   }
 
   def numAsBson(jsonNum: JsonNumber): BsonNumber = {
-    val intOpt  = jsonNum.toInt.map(x => new org.bson.BsonInt32(x))
+    val intOpt = jsonNum.toInt.map(x => new org.bson.BsonInt32(x))
     def longOpt = jsonNum.toLong.map(x => new org.bson.BsonInt64(x))
     def decOpt = jsonNum.toBigDecimal.map { x: BigDecimal =>
       val one28: Decimal128 = new Decimal128(x.bigDecimal)
       new org.bson.BsonDecimal128(one28)
     }
     intOpt.orElse(longOpt).orElse(decOpt).getOrElse {
-      val one28: Decimal128 = new Decimal128(BigDecimal(jsonNum.toDouble).bigDecimal)
+      val one28: Decimal128 =
+        new Decimal128(BigDecimal(jsonNum.toDouble).bigDecimal)
       new org.bson.BsonDecimal128(one28)
     }
   }
 
-  def asMutableDocument(json: Json): mutable.Document = mutable.Document(json.noSpaces)
+  def asMutableDocument(json: Json): mutable.Document =
+    mutable.Document(json.noSpaces)
 
   def parse[A: Decoder](doc: immutable.Document): Either[circe.Error, A] = {
     decode[A](doc.toJson())
   }
 
+  private val UnquoteR = "\\s*\"(.*)\"\\s*".r
+
+  private def unquote(str: String) = str match {
+    case UnquoteR(middle) => middle
+    case _                => str
+  }
   private def cleanBsonNums(obj: JsonObject): Json = {
     def convert(value: Json) = {
       val numOpt = value.asNumber.map(Json.fromJsonNumber)
       numOpt.getOrElse {
-        val numberWang = value.asString.map(args4c.unquote).get
+        val numberWang = value.asString.map(unquote).get
         if (numberWang.contains(".")) {
           Json.fromBigDecimal(BigDecimal(numberWang).bigDecimal)
         } else {
@@ -194,7 +203,8 @@ object BsonUtil {
     )
   }
 
-  private val bsonJsonSettings = JsonWriterSettings.builder.outputMode(JsonMode.RELAXED).build
+  private val bsonJsonSettings =
+    JsonWriterSettings.builder.outputMode(JsonMode.RELAXED).build
   def idForDocument(doc: Document): String = {
     val oid: ObjectId = doc.getObjectId("_id")
     oid.toHexString

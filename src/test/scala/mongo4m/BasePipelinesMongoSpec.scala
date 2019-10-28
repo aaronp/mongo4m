@@ -1,6 +1,6 @@
-package pipelines.mongo
+package mongo4m
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import dockerenv.BaseMongoSpec
 import org.mongodb.scala.{MongoClient, MongoDatabase}

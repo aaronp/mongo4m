@@ -1,24 +1,19 @@
-package pipelines.mongo
+package mongo4m
 
 import cats.effect.IO
 import io.circe.{Decoder, ObjectEncoder}
 import monix.execution.ExecutionModel
 import monix.reactive.Observable
 import monix.reactive.subjects.Var
-import org.mongodb.scala.bson.BsonValue
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.{Filters, Projections}
 import org.mongodb.scala.{Completed, Document, MongoCollection}
 import org.scalatest.GivenWhenThen
-import pipelines.Schedulers
-import pipelines.mongo.DbQueryTest.Record
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 
 trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
-
-  import io.circe.literal._
 
   "DbQuery.exec" should {
     "apply the query, projection and sort criteria" in {

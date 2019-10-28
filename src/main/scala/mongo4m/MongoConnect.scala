@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import cats.effect.{IO, Resource}
 import com.mongodb.ConnectionString
@@ -15,20 +15,24 @@ import scala.util.Try
 
 final class MongoConnect(mongoConfig: Config) extends StrictLogging {
 
-  def user             = mongoConfig.getString("user")
-  def database: String = mongoConfig.getString("database").ensuring(_.nonEmpty, "'database' not set")
+  def user = mongoConfig.getString("user")
+  def database: String =
+    mongoConfig.getString("database").ensuring(_.nonEmpty, "'database' not set")
 
-  def settingsForCollection(collectionName: String, basedOn: String = "common"): CollectionSettings = {
+  def settingsForCollection(collectionName: String,
+                            basedOn: String = "common"): CollectionSettings = {
     val conf = configForCollection(collectionName, basedOn = basedOn)
     CollectionSettings.forMongoConfig(conf, collectionName)
   }
 
-  def collectionObservable(collectionName: String, basedOn: String = "common")(implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
+  def collectionObservable(collectionName: String, basedOn: String = "common")(
+      implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
     val cs = settingsForCollection(collectionName, basedOn = basedOn)
     collectionObservable(cs)
   }
 
-  def collectionObservable(cs: CollectionSettings)(implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
+  def collectionObservable(cs: CollectionSettings)(
+      implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
     mongoDbResourceObservable.flatMap { db =>
       Observable.fromFuture(cs.ensureCreated(db))
     }
@@ -67,7 +71,8 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
     }
   }
 
-  def mongoDbResourceObservable: Observable[MongoDatabase] = Observable.fromResource(mongoDbResource)
+  def mongoDbResourceObservable: Observable[MongoDatabase] =
+    Observable.fromResource(mongoDbResource)
 
   lazy val mongoDbResource: Resource[IO, MongoDatabase] = {
     mongoResource.flatMap {
@@ -103,7 +108,7 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
 //  }
 
   def client: MongoClient = {
-    val pwd   = mongoConfig.getString("password").toCharArray
+    val pwd = mongoConfig.getString("password").toCharArray
     val creds = MongoCredential.createCredential(user, database, pwd)
     logger.info(s"$user connecting to db $database at '$uri'")
     MongoClientSettings
@@ -120,11 +125,10 @@ object MongoConnect extends LowPriorityMongoImplicits {
 
   case class IndexConfig(config: Config) {
 
-    private def unique     = config.getBoolean("unique")
+    private def unique = config.getBoolean("unique")
     private def background = config.getBoolean("background")
-    private def field      = config.getString("field")
+    private def field = config.getString("field")
     private def fields: Seq[String] = {
-      import args4c.implicits._
       if (config.hasPath("fields")) {
         config.asList("fields")
       } else {
@@ -162,16 +166,17 @@ object MongoConnect extends LowPriorityMongoImplicits {
   }
 
   case class DatabaseConfig(val config: Config) {
-    def capped               = config.getBoolean("capped")
+    def capped = config.getBoolean("capped")
     def maxSizeInBytes: Long = config.getMemorySize("maxSizeInBytes").toBytes
-    def maxDocuments         = config.getLong("maxDocuments")
+    def maxDocuments = config.getLong("maxDocuments")
     def indices: List[IndexConfig] = {
       import scala.collection.JavaConverters._
       config.getConfigList("indices").asScala.map(IndexConfig.apply).toList
     }
 
     def asOptions(): CreateCollectionOptions = {
-      val opts = CreateCollectionOptions().capped(capped).maxDocuments(maxDocuments)
+      val opts =
+        CreateCollectionOptions().capped(capped).maxDocuments(maxDocuments)
       maxSizeInBytes match {
         case 0L => opts
         case n  => opts.sizeInBytes(n)
@@ -179,17 +184,20 @@ object MongoConnect extends LowPriorityMongoImplicits {
     }
   }
   object DatabaseConfig {
-    def apply(mongoConfig: Config, name: String): DatabaseConfig = DatabaseConfig(mongoConfig.getConfig(s"databases.$name"))
+    def apply(mongoConfig: Config, name: String): DatabaseConfig =
+      DatabaseConfig(mongoConfig.getConfig(s"databases.$name"))
   }
 
-  def use[A](rootConfig: Config)(thunk: (MongoClient, MongoDatabase) => A): A = {
+  def use[A](rootConfig: Config)(
+      thunk: (MongoClient, MongoDatabase) => A): A = {
     val io = resource(rootConfig).use { pear =>
       IO(thunk(pear._1, pear._2))
     }
     io.unsafeRunSync()
   }
 
-  def resource(rootConfig: Config): Resource[IO, (MongoClient, MongoDatabase)] = {
+  def resource(
+      rootConfig: Config): Resource[IO, (MongoClient, MongoDatabase)] = {
     def connect(): (MongoClient, MongoDatabase) = {
       val c = MongoConnect(rootConfig)
       c.client -> c.mongoDb
@@ -200,7 +208,8 @@ object MongoConnect extends LowPriorityMongoImplicits {
     }
   }
 
-  def apply(rootConfig: Config): MongoConnect = forMongoConfig(rootConfig.getConfig("pipelines.mongo"))
+  def apply(rootConfig: Config): MongoConnect =
+    forMongoConfig(rootConfig.getConfig("pipelines.mongo"))
 
   def forMongoConfig(config: Config): MongoConnect = new MongoConnect(config)
 }

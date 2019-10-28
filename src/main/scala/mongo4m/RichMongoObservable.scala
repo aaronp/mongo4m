@@ -1,6 +1,7 @@
-package pipelines.mongo
+package mongo4m
+
+import mongo4m.MongoReactive.{MongoObservable, RPublisher}
 import monix.reactive.Observable
-import pipelines.mongo.MongoReactive.{MongoObservable, RPublisher}
 
 class RichMongoObservable[A](obs: MongoObservable[A]) {
 

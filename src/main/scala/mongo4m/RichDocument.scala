@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import io.circe
 import io.circe.Decoder

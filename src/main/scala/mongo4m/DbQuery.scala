@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import io.circe.Decoder.Result
 import io.circe.{Decoder, Encoder, HCursor, Json}
@@ -7,7 +7,10 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Sorts
 import org.mongodb.scala.{Document, MongoCollection}
 
-final case class DbQuery(query: Option[Bson], projection: Option[Bson], sortFields: Seq[String], ascending: Boolean = true) {
+final case class DbQuery(query: Option[Bson],
+                         projection: Option[Bson],
+                         sortFields: Seq[String],
+                         ascending: Boolean = true) {
 
   /**
     * Execute this query on the given mongo collection
@@ -35,7 +38,8 @@ final case class DbQuery(query: Option[Bson], projection: Option[Bson], sortFiel
 
 object DbQuery {
 
-  def apply(query: Bson): DbQuery = new DbQuery(query = Option(query), None, Nil)
+  def apply(query: Bson): DbQuery =
+    new DbQuery(query = Option(query), None, Nil)
 
   implicit object encoder extends Encoder[DbQuery] {
     override def apply(dbQuery: DbQuery): Json = {
@@ -44,13 +48,13 @@ object DbQuery {
       implicit val bsonEncoder = BsonUtil.codec.encoder
 
       val queryAsJson = dbQuery.query.map(_.asJson)
-      val projAsJson  = dbQuery.projection.map(_.asJson)
+      val projAsJson = dbQuery.projection.map(_.asJson)
 
       Json.obj(
-        "query"      -> Json.arr(queryAsJson.toSeq: _*),
+        "query" -> Json.arr(queryAsJson.toSeq: _*),
         "projection" -> Json.arr(projAsJson.toSeq: _*),
         "sortFields" -> Json.arr(dbQuery.sortFields.map(_.asJson): _*),
-        "ascending"  -> Json.fromBoolean(dbQuery.ascending)
+        "ascending" -> Json.fromBoolean(dbQuery.ascending)
       )
     }
   }
@@ -58,10 +62,10 @@ object DbQuery {
     implicit val bsonDec = BsonUtil.codec.decoder
     override def apply(c: HCursor): Result[DbQuery] = {
       for {
-        query      <- c.downField("query").downArray.as[Option[Bson]]
+        query <- c.downField("query").downArray.as[Option[Bson]]
         projection <- c.downField("projection").downArray.as[Option[Bson]]
         sortFields <- c.downField("sortFields").as[Seq[String]]
-        ascending  <- c.downField("ascending").as[Boolean]
+        ascending <- c.downField("ascending").as[Boolean]
       } yield {
         DbQuery(query, projection, sortFields, ascending)
       }

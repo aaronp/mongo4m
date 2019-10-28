@@ -1,7 +1,4 @@
-package pipelines.mongo
-
-import pipelines.audit.mongo.AuditServiceMongoSpec
-import pipelines.users.mongo.{LoginHandlerMongoSpec, RefDataMongoSpec, UserRepoMongoSpec, UserRolesServiceSpec}
+package mongo4m
 
 class PipelinesMongoSpec
     extends BasePipelinesMongoSpec

@@ -1,6 +1,4 @@
-package pipelines.mongo
-
-import pipelines.Schedulers
+package mongo4m
 
 trait ReactiveMongoSpec extends BasePipelinesMongoSpec {
 

@@ -1,4 +1,4 @@
-package pipelines.mongo
+package mongo4m
 
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Encoder
@@ -8,7 +8,8 @@ import org.mongodb.scala.{Completed, Document, MongoCollection}
 
 import scala.concurrent.Future
 
-class RichCollection(val collection: MongoCollection[Document]) extends LowPriorityMongoImplicits {
+class RichCollection(val collection: MongoCollection[Document])
+    extends LowPriorityMongoImplicits {
 
   def insertOne[T: Encoder](value: T): Observable[Completed] = {
     val doc = BsonUtil.asDocument(value)

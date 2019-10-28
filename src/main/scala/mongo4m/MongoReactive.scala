@@ -1,22 +1,24 @@
-package pipelines.mongo
+package mongo4m
 
 object MongoReactive {
 
   type MongoObservable[A] = org.mongodb.scala.Observable[A]
-  type MongoObserver[A]   = org.mongodb.scala.Observer[A]
-  type MongoSubscription  = org.mongodb.scala.Subscription
+  type MongoObserver[A] = org.mongodb.scala.Observer[A]
+  type MongoSubscription = org.mongodb.scala.Subscription
 
-  type RPublisher[A]  = org.reactivestreams.Publisher[A]
+  type RPublisher[A] = org.reactivestreams.Publisher[A]
   type RSubscriber[A] = org.reactivestreams.Subscriber[A]
-  type RSubscription  = org.reactivestreams.Subscription
+  type RSubscription = org.reactivestreams.Subscription
 
-  class ReactivePublisherForObservable[A](val obs: MongoObservable[A]) extends RPublisher[A] {
+  class ReactivePublisherForObservable[A](val obs: MongoObservable[A])
+      extends RPublisher[A] {
     override def subscribe(s: RSubscriber[_ >: A]): Unit = {
       obs.subscribe(new ObserverForSubscriber[A](s))
     }
   }
 
-  class ObserverForSubscriber[A](val subscriber: RSubscriber[_ >: A]) extends MongoObserver[A] {
+  class ObserverForSubscriber[A](val subscriber: RSubscriber[_ >: A])
+      extends MongoObserver[A] {
     override def onNext(result: A): Unit = {
       subscriber.onNext(result)
     }
@@ -32,9 +34,10 @@ object MongoReactive {
     }
   }
 
-  class SubscriptionForMongoSubscription(subscription: MongoSubscription) extends RSubscription {
+  class SubscriptionForMongoSubscription(subscription: MongoSubscription)
+      extends RSubscription {
     override def request(n: Long): Unit = subscription.request(n)
-    override def cancel(): Unit         = subscription.unsubscribe()
+    override def cancel(): Unit = subscription.unsubscribe()
   }
 
 }

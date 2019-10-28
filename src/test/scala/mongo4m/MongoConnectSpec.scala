@@ -1,10 +1,10 @@
-package pipelines.mongo
+package mongo4m
 
 import java.util.UUID
 
 import io.circe.Json
+import io.circe.literal._
 import org.mongodb.scala.bson.collection.immutable.Document
-import pipelines.Schedulers
 
 trait MongoConnectSpec extends BasePipelinesMongoSpec {
 
@@ -12,8 +12,6 @@ trait MongoConnectSpec extends BasePipelinesMongoSpec {
     "connect" in {
       Schedulers.using { implicit scheduler =>
         val collection = mongoDb.getCollection(s"coll_${UUID.randomUUID()}".filter(_.isLetter))
-
-        import io.circe.literal._
 
         val doc: Json = json"""{
                 "userName" : "name",
