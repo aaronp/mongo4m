@@ -2,20 +2,28 @@ package mongo4m
 
 import cats.effect.{IO, Resource}
 import com.mongodb.ConnectionString
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.model.{CreateCollectionOptions, IndexOptions}
-import org.mongodb.scala.{Document, MongoClient, MongoClientSettings, MongoCollection, MongoCredential, MongoDatabase}
+import org.mongodb.scala.{
+  Document,
+  MongoClient,
+  MongoClientSettings,
+  MongoCollection,
+  MongoCredential,
+  MongoDatabase
+}
 
 import scala.util.Try
 
 final class MongoConnect(mongoConfig: Config) extends StrictLogging {
 
   def user = mongoConfig.getString("user")
+
   def database: String =
     mongoConfig.getString("database").ensuring(_.nonEmpty, "'database' not set")
 
@@ -45,12 +53,12 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
                           maxSize: String = "500M",
                           pollFreq: String = "100ms"): Config = {
     val c = ConfigFactory.parseString(s"""databases {
-                                        |    ${collectionName} = $${databases.${basedOn}}
-                                        |    ${collectionName}.maxDocuments: $maxDocuments
-                                        |    ${collectionName}.capped: $capped
-                                        |    ${collectionName}.maxSizeInBytes: $maxSize
-                                        |    ${collectionName}.pollFrequency: $pollFreq
-                                        |}""".stripMargin)
+         |    ${collectionName} = $${databases.${basedOn}}
+         |    ${collectionName}.maxDocuments: $maxDocuments
+         |    ${collectionName}.capped: $capped
+         |    ${collectionName}.maxSizeInBytes: $maxSize
+         |    ${collectionName}.pollFrequency: $pollFreq
+         |}""".stripMargin)
     c.withFallback(mongoConfig).resolve()
   }
 
@@ -65,6 +73,7 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
       val c = client
       c -> c.getDatabase(database)
     }
+
     Resource.make(IO(connect())) {
       case (client, _) =>
         IO(client.close())
@@ -79,6 +88,7 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
       case (a, b) => Resource.pure[IO, MongoDatabase](b)
     }
   }
+
   def useClient[A](thunk: (MongoClient, MongoDatabase) => A): A = {
     val io = mongoResource.use { pear =>
       IO(thunk(pear._1, pear._2))
@@ -93,19 +103,6 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
       }
       .unsafeRunSync()
   }
-
-//  def tail(collectionName: String, basedOn: String = "audit")(implicit sched: Scheduler) = {
-//    val cs = CollectionSettings(configForCollection(collectionName, basedOn = basedOn), collectionName)
-//    mongoDbResource.flatMap { db =>
-//      val collFuture = cs.ensureCreated(db)
-//
-//      val obs = Observable.fromFuture(collFuture).flatMap[AuditServiceMongo] { coll =>
-//        AuditServiceMongo(db, coll)
-//      }
-//
-//      obs
-//    }
-//  }
 
   def client: MongoClient = {
     val pwd = mongoConfig.getString("password").toCharArray
@@ -126,16 +123,31 @@ object MongoConnect extends LowPriorityMongoImplicits {
   case class IndexConfig(config: Config) {
 
     private def unique = config.getBoolean("unique")
+
     private def background = config.getBoolean("background")
+
     private def field = config.getString("field")
+
     private def fields: Seq[String] = {
       if (config.hasPath("fields")) {
-        config.asList("fields")
+        try {
+          import scala.collection.JavaConverters._
+          config.getStringList("fields").asScala.toSeq
+        } catch {
+          case _: ConfigException =>
+            config
+              .getString("fields")
+              .split(",", -1)
+              .map(_.trim)
+              .filterNot(_.isEmpty)
+              .toSeq
+        }
       } else {
         Nil
       }
 
     }
+
     private def ascending = Try(config.getBoolean("ascending")).getOrElse(true)
 
     private def bson: Json = {
@@ -148,9 +160,11 @@ object MongoConnect extends LowPriorityMongoImplicits {
           Json.obj(map: _*)
       }
     }
+
     def asBsonDoc = {
       BsonUtil.asDocument(bson)
     }
+
     def asOptions: IndexOptions = {
       IndexOptions().unique(unique).background(background)
     }
@@ -167,8 +181,11 @@ object MongoConnect extends LowPriorityMongoImplicits {
 
   case class DatabaseConfig(val config: Config) {
     def capped = config.getBoolean("capped")
+
     def maxSizeInBytes: Long = config.getMemorySize("maxSizeInBytes").toBytes
+
     def maxDocuments = config.getLong("maxDocuments")
+
     def indices: List[IndexConfig] = {
       import scala.collection.JavaConverters._
       config.getConfigList("indices").asScala.map(IndexConfig.apply).toList
@@ -183,6 +200,7 @@ object MongoConnect extends LowPriorityMongoImplicits {
       }
     }
   }
+
   object DatabaseConfig {
     def apply(mongoConfig: Config, name: String): DatabaseConfig =
       DatabaseConfig(mongoConfig.getConfig(s"databases.$name"))
@@ -202,6 +220,7 @@ object MongoConnect extends LowPriorityMongoImplicits {
       val c = MongoConnect(rootConfig)
       c.client -> c.mongoDb
     }
+
     Resource.make(IO(connect())) {
       case (client, _) =>
         IO(client.close())

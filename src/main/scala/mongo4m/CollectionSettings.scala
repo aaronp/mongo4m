@@ -1,6 +1,7 @@
 package mongo4m
 
 import com.typesafe.config.Config
+import mongo4m.MongoConnect.IndexConfig
 import monix.execution.{CancelableFuture, Scheduler}
 import org.mongodb.scala.{Document, MongoCollection, MongoDatabase}
 

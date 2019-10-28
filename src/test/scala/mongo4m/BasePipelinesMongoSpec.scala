@@ -8,7 +8,10 @@ import org.mongodb.scala.{MongoClient, MongoDatabase}
 import scala.concurrent.duration._
 import scala.util.Success
 
-abstract class BasePipelinesMongoSpec extends BaseMongoSpec with LowPriorityMongoImplicits with StrictLogging {
+abstract class BasePipelinesMongoSpec
+    extends BaseMongoSpec
+    with LowPriorityMongoImplicits
+    with StrictLogging {
 
   override def testTimeout = 15.seconds
 
@@ -19,20 +22,21 @@ abstract class BasePipelinesMongoSpec extends BaseMongoSpec with LowPriorityMong
   def newClient(): MongoClient = MongoConnect(rootConfig).client
 
   var mongoClient: MongoClient = null
-  def mongoDb: MongoDatabase   = mongoClient.getDatabase("test-db")
-
+  def mongoDb: MongoDatabase = mongoClient.getDatabase("test-db")
 
   override def beforeAll(): Unit = {
     super.beforeAll()
 
     val listOutput = eventually {
-      val Success((0, output)) = dockerEnv.runInScriptDir("mongo.sh", "listUsers.js")
+      val Success((0, output)) =
+        dockerEnv.runInScriptDir("mongo.sh", "listUsers.js")
       output
     }
 
     if (!listOutput.contains("serviceUser")) {
       val createOutput = eventually {
-        val Success((0, output)) = dockerEnv.runInScriptDir("mongo.sh", "createUser.js")
+        val Success((0, output)) =
+          dockerEnv.runInScriptDir("mongo.sh", "createUser.js")
         output
       }
       createOutput should include("serviceUser")
@@ -50,9 +54,12 @@ abstract class BasePipelinesMongoSpec extends BaseMongoSpec with LowPriorityMong
     }
 
     val threads = Thread.getAllStackTraces.asScala.collect {
-      case (thread, stack) if stack.exists(_.getClassName.contains("mongodb")) => thread
+      case (thread, stack)
+          if stack.exists(_.getClassName.contains("mongodb")) =>
+        thread
     }
-    logger.error(s"""MongoClient.close() ... doesn't. Interrupting ${threads.size} threads""".stripMargin)
+    logger.error(
+      s"""MongoClient.close() ... doesn't. Interrupting ${threads.size} threads""".stripMargin)
     threads.foreach(_.stop())
 
     super.afterAll()

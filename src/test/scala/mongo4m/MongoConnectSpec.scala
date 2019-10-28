@@ -11,7 +11,8 @@ trait MongoConnectSpec extends BasePipelinesMongoSpec {
   "MongoConnect" should {
     "connect" in {
       Schedulers.using { implicit scheduler =>
-        val collection = mongoDb.getCollection(s"coll_${UUID.randomUUID()}".filter(_.isLetter))
+        val collection =
+          mongoDb.getCollection(s"coll_${UUID.randomUUID()}".filter(_.isLetter))
 
         val doc: Json = json"""{
                 "userName" : "name",
@@ -20,10 +21,18 @@ trait MongoConnectSpec extends BasePipelinesMongoSpec {
                 }"""
 
         // insert summat
-        val List(_) = collection.insertOne(BsonUtil.asDocument(doc)).monix.toListL.runSyncUnsafe(testTimeout)
+        val List(_) = collection
+          .insertOne(BsonUtil.asDocument(doc))
+          .monix
+          .toListL
+          .runSyncUnsafe(testTimeout)
 
-        val query          = json"""{ "userName" : "name" } """
-        val List(found)    = collection.find[Document](BsonUtil.asDocument(query)).monix.toListL.runSyncUnsafe(testTimeout)
+        val query = json"""{ "userName" : "name" } """
+        val List(found) = collection
+          .find[Document](BsonUtil.asDocument(query))
+          .monix
+          .toListL
+          .runSyncUnsafe(testTimeout)
         val Right(written) = found.as[Json]
 
         val readBackMap = written.asObject.get.toMap

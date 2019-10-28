@@ -4,7 +4,6 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.execution.schedulers.SchedulerService
 import monix.execution.{ExecutionModel, Scheduler, UncaughtExceptionReporter}
 
-
 object Schedulers {
 
   def use[A](sched: SchedulerService)(f: Scheduler => A): A = {
@@ -23,16 +22,26 @@ object Schedulers {
     }
   }
 
-  def io(name: String = "mongo4m-io", daemonic: Boolean = true): SchedulerService = {
-    Scheduler.io(name, daemonic = daemonic, reporter = LoggingReporter, executionModel = ExecutionModel.Default)
+  def io(name: String = "mongo4m-io",
+         daemonic: Boolean = true): SchedulerService = {
+    Scheduler.io(name,
+                 daemonic = daemonic,
+                 reporter = LoggingReporter,
+                 executionModel = ExecutionModel.Default)
   }
 
   def computeAsync(name: String = "mongo4m-compute"): SchedulerService = {
     compute(executionModel = ExecutionModel.AlwaysAsyncExecution)
   }
 
-  def compute(name: String = "mongo4m-compute", daemonic: Boolean = true, executionModel: ExecutionModel = ExecutionModel.Default): SchedulerService = {
-    Scheduler.computation(name = name, daemonic = daemonic, reporter = LoggingReporter, executionModel = executionModel)
+  def compute(name: String = "mongo4m-compute",
+              daemonic: Boolean = true,
+              executionModel: ExecutionModel = ExecutionModel.Default)
+    : SchedulerService = {
+    Scheduler.computation(name = name,
+                          daemonic = daemonic,
+                          reporter = LoggingReporter,
+                          executionModel = executionModel)
   }
 
 }

@@ -1,13 +1,13 @@
 package mongo4m
 
-class PipelinesMongoSpec
+class Mongo4mTest
     extends BasePipelinesMongoSpec
     with DbQueryTest
-//    with ReactiveMongoSpec
+    with ReactiveMongoSpec
+    with MongoConnectSpec
+    with LowPriorityMongoImplicitsSpec
 //    with AuditServiceMongoSpec
 //    with LoginHandlerMongoSpec
-//    with MongoConnectSpec
 //    with RefDataMongoSpec
 //    with UserRepoMongoSpec
 //    with UserRolesServiceSpec
-//    with LowPriorityMongoImplicitsSpec
