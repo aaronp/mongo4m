@@ -5,9 +5,9 @@ ThisBuild / organization := "mongo4m"
 ThisBuild / scalaVersion := "2.13.0"
 
 val projectName = "mongo4m"
-val username            = "aaronp"
-val scalaTwelve         = "2.12.10"
-val scalaThirteen       = "2.13.0"
+val username = "aaronp"
+val scalaTwelve = "2.12.10"
+val scalaThirteen = "2.13.0"
 val defaultScalaVersion = scalaThirteen
 
 name := projectName
@@ -39,7 +39,8 @@ siteSourceDirectory := target.value / "paradox" / "site" / "main"
 
 siteSubdirName in SiteScaladoc := "api/latest"
 
-val monix = List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail")
+val monix =
+  List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail")
 
 val monixDependencies = monix.map { art =>
   "io.monix" %% art % "3.0.0"
@@ -51,8 +52,8 @@ libraryDependencies ++= monixDependencies ++ List(
 libraryDependencies ++= List(
   "org.scalactic" %% "scalactic" % "3.0.8" % "test",
   "org.scalatest" %% "scalatest" % "3.0.8" % "test",
-  "org.pegdown"   % "pegdown"    % "1.6.0" % "test",
-  "junit"         % "junit"      % "4.12"  % "test"
+  "org.pegdown" % "pegdown" % "1.6.0" % "test",
+  "junit" % "junit" % "4.12" % "test"
 )
 
 publishMavenStyle := true
@@ -78,7 +79,8 @@ credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 
 // https://coveralls.io/github/aaronp/mongo4m
 // https://github.com/scoverage/sbt-coveralls#specifying-your-repo-token
-coverallsTokenFile := Option((Path.userHome / ".sbt" / ".coveralls.mongo4m").asPath.toString)
+coverallsTokenFile := Option(
+  (Path.userHome / ".sbt" / ".coveralls.mongo4m").asPath.toString)
 
 buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
 buildInfoPackage := "mongo4m.build"
@@ -88,7 +90,8 @@ scalafmtOnCompile in ThisBuild := true
 scalafmtVersion in ThisBuild := "1.4.0"
 
 // see http://www.scalatest.org/user_guide/using_scalatest_with_sbt
-testOptions in Test += (Tests.Argument(TestFrameworks.ScalaTest, "-h", s"target/scalatest-reports", "-oN"))
+testOptions in Test += (Tests
+  .Argument(TestFrameworks.ScalaTest, "-h", s"target/scalatest-reports", "-oN"))
 
 pomExtra := {
   <url>https://github.com/{username}/{projectName}</url>
