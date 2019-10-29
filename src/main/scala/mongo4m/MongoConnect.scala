@@ -85,7 +85,7 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
 
   lazy val mongoDbResource: Resource[IO, MongoDatabase] = {
     mongoResource.flatMap {
-      case (a, b) => Resource.pure[IO, MongoDatabase](b)
+      case (_, b) => Resource.pure[IO, MongoDatabase](b)
     }
   }
 
