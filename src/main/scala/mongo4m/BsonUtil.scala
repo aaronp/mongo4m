@@ -174,13 +174,13 @@ object BsonUtil {
 
   /**
     * BSON will read back numeric values as:
-    * {{{
+    *
     *   {
     *    "aLong" : {
     *      "$numberLong" : "123"
     *    }
     *   }
-    * }}}
+    *
     *
     * Which sucks. This hack turns it into:
     * {{{
