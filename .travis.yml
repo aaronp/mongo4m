@@ -1,0 +1,22 @@
+language: scala
+scala:
+   - 2.12.9
+services:
+   - docker
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION -jvm-opts travis/jvmopts clean coverage test
+jdk:
+  - oraclejdk11
+
+services:
+  - docker
+after_success: "sbt coverageReport coveralls"
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.sbt
+    - $HOME/.ivy2
+    - $HOME/.coursier
+
