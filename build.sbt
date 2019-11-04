@@ -8,7 +8,7 @@ val projectName = "mongo4m"
 val username = "aaronp"
 val scalaTwelve = "2.12.10"
 val scalaThirteen = "2.13.0"
-val defaultScalaVersion = scalaTwelve
+val defaultScalaVersion = scalaThirteen //scalaTwelve
 
 name := projectName
 
@@ -48,20 +48,20 @@ val monixDependencies = monix.map { art =>
 val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
                    "ch.qos.logback" % "logback-classic" % "1.2.3" % "test")
 
-val circeVersion = "0.11.1"
 val circeDependencies = List("circe-core",
                              "circe-generic",
                              "circe-parser",
                              "circe-literal",
-                             "circe-generic-extras").map { art =>
-  "io.circe" %% art % circeVersion
+                             "circe-generic-extras").map {
+  case art @ "circe-generic-extras" => "io.circe" %% art % "0.12.2"
+  case art                          => "io.circe" %% art % "0.12.3"
 }
 
 libraryDependencies ++= monixDependencies ++ circeDependencies ++ logging ++ List(
   "com.typesafe" % "config" % "1.3.4" % "provided",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0",
-  "com.github.aaronp" %% "dockerenv" % "0.0.4" % "test",
-  "com.github.aaronp" %% "dockerenv" % "0.0.4" % "test" classifier ("tests")
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
+  "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test",
+  "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test" classifier ("tests")
 )
 
 libraryDependencies ++= List(

@@ -16,6 +16,7 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
 import org.mongodb.scala.{Document, MongoClient}
 
+import scala.collection.mutable
 import scala.util.Try
 
 /**
@@ -76,7 +77,7 @@ object BsonUtil {
     import scala.collection.JavaConverters._
     if (value.isArray) {
       val a: BsonArray = value.asArray()
-      val records = a.getValues.asScala.map(bsonValueAsJson)
+      val records = a.getValues.asScala.map(bsonValueAsJson).toSeq
       Json.arr(records: _*)
     } else if (value.isBinary) {
       val binaryData = value.asBinary.getData
@@ -135,9 +136,6 @@ object BsonUtil {
       new org.bson.BsonDecimal128(one28)
     }
   }
-
-  def asMutableDocument(json: Json): mutable.Document =
-    mutable.Document(json.noSpaces)
 
   def parse[A: Decoder](doc: immutable.Document): Either[circe.Error, A] = {
     decode[A](doc.toJson())
