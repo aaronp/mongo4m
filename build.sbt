@@ -58,7 +58,7 @@ val circeDependencies = List("circe-core",
 }
 
 libraryDependencies ++= monixDependencies ++ circeDependencies ++ logging ++ List(
-  "com.typesafe" % "config" % "1.3.4" % "provided",
+  "com.typesafe" % "config" % "1.4.0" % "provided",
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
   "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test",
   "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test" classifier ("tests")
