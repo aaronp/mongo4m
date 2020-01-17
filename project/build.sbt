@@ -1,1 +1,1 @@
-libraryDependencies ++= List("com.github.aaronp" %% "eie" % "0.0.3")
+libraryDependencies ++= List("com.github.aaronp" %% "eie" % "1.0.0")

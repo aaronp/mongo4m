@@ -43,7 +43,7 @@ val monix =
   List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail")
 
 val monixDependencies = monix.map { art =>
-  "io.monix" %% art % "3.0.0"
+  "io.monix" %% art % "3.1.0"
 }
 val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
                    "ch.qos.logback" % "logback-classic" % "1.2.3" % "test")
@@ -59,16 +59,17 @@ val circeDependencies = List("circe-core",
 
 libraryDependencies ++= monixDependencies ++ circeDependencies ++ logging ++ List(
   "com.typesafe" % "config" % "1.4.0" % "provided",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
-  "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test",
-  "com.github.aaronp" %% "dockerenv" % "0.3.0" % "test" classifier ("tests")
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0",
+  "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % Test,
+  "com.github.aaronp" %% "dockerenv" % "0.4.5" % "test",
+  "com.github.aaronp" %% "dockerenv" % "0.4.5" % "test" classifier ("tests")
 )
 
 libraryDependencies ++= List(
-  "org.scalactic" %% "scalactic" % "3.0.8" % "test",
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+  "org.scalactic" %% "scalactic" % "3.1.0" % "test",
+  "org.scalatest" %% "scalatest" % "3.1.0" % "test",
   "org.pegdown" % "pegdown" % "1.6.0" % "test",
-  "junit" % "junit" % "4.12" % "test"
+  "junit" % "junit" % "4.13" % "test"
 )
 
 publishMavenStyle := true

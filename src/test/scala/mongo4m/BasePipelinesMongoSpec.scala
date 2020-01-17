@@ -29,14 +29,14 @@ abstract class BasePipelinesMongoSpec
 
     val listOutput = eventually {
       val Success((0, output)) =
-        dockerEnv.runInScriptDir("mongo.sh", "listUsers.js")
+        dockerHandle.runInScriptDir("mongo.sh", "listUsers.js")
       output
     }
 
     if (!listOutput.contains("serviceUser")) {
       val createOutput = eventually {
         val Success((0, output)) =
-          dockerEnv.runInScriptDir("mongo.sh", "createUser.js")
+          dockerHandle.runInScriptDir("mongo.sh", "createUser.js")
         output
       }
       createOutput should include("serviceUser")
