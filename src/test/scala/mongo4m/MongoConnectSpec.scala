@@ -6,6 +6,8 @@ import io.circe.Json
 import io.circe.literal._
 import org.mongodb.scala.bson.collection.immutable.Document
 
+import scala.util.Success
+
 trait MongoConnectSpec extends BasePipelinesMongoSpec {
 
   "MongoConnect" should {
@@ -33,7 +35,7 @@ trait MongoConnectSpec extends BasePipelinesMongoSpec {
           .monix
           .toListL
           .runSyncUnsafe(testTimeout)
-        val Right(written) = found.as[Json]
+        val Success(written) = found.as[Json]
 
         val readBackMap = written.asObject.get.toMap
         readBackMap.contains("_id") shouldBe true
