@@ -53,16 +53,16 @@ val circeDependencies = List("circe-core",
                              "circe-parser",
                              "circe-literal",
                              "circe-generic-extras").map {
-  case art @ "circe-generic-extras" => "io.circe" %% art % "0.12.2"
-  case art                          => "io.circe" %% art % "0.12.3"
+//  case art @ "circe-generic-extras" => "io.circe" %% art % "0.12.2"
+  case art => "io.circe" %% art % "0.13.0"
 }
 
 libraryDependencies ++= monixDependencies ++ circeDependencies ++ logging ++ List(
   "com.typesafe" % "config" % "1.4.0" % "provided",
-  "org.mongodb.scala" %% "mongo-scala-driver" % "2.8.0",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
   "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % Test,
-  "com.github.aaronp" %% "dockerenv" % "0.4.5" % "test",
-  "com.github.aaronp" %% "dockerenv" % "0.4.5" % "test" classifier ("tests")
+  "com.github.aaronp" %% "dockerenv" % "0.5.0" % "test",
+  "com.github.aaronp" %% "dockerenv" % "0.5.0" % "test" classifier ("tests")
 )
 
 libraryDependencies ++= List(

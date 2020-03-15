@@ -2,19 +2,26 @@ package mongo4m
 
 import com.typesafe.config.Config
 import mongo4m.MongoConnect.IndexConfig
-import monix.execution.{CancelableFuture, Scheduler}
+import monix.eval.Task
 import org.mongodb.scala.{Document, MongoCollection, MongoDatabase}
 
+/**
+  * Represents a means to create a new collection with indices and settings
+  * @param dbConfig
+  * @param indices
+  * @param collectionName
+  */
 case class CollectionSettings(dbConfig: MongoConnect.DatabaseConfig,
                               indices: List[IndexConfig],
                               collectionName: String) {
 
   val options = dbConfig.asOptions()
-  def ensureCreated(mongoDb: MongoDatabase)(implicit sched: Scheduler)
-    : CancelableFuture[MongoCollection[Document]] = {
+  def ensureCreated(mongoDb: MongoDatabase): Task[MongoCollection[Document]] = {
     import LowPriorityMongoImplicits._
     mongoDb.ensureCreated(this)
   }
+  def withName(newCollectionName: String): CollectionSettings =
+    copy(collectionName = newCollectionName)
 }
 object CollectionSettings {
   def apply(rootConfig: Config, collectionName: String): CollectionSettings = {

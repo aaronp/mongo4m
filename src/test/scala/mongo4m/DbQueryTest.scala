@@ -53,6 +53,7 @@ trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
             val collection = connect
               .settingsForCollection(s"test.dbquery${System.currentTimeMillis}")
               .ensureCreated(db)
+              .runToFuture
               .futureValue
             val futures: Seq[Future[Completed]] = records.map { r =>
               collection.insertOne(r).headL.runToFuture
@@ -118,7 +119,7 @@ trait DbQueryTest extends BasePipelinesMongoSpec with GivenWhenThen {
 
           Observable(1, 2, 3, 4)
             .map(DbQueryTest.Record.apply)
-            .subscribe(head.asObserver[DbQueryTest.Record])
+            .subscribe(head.asLoggingObserver[DbQueryTest.Record])
 
           // read all the results
           val received = ListBuffer[Document]()

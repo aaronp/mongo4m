@@ -5,7 +5,6 @@ import com.mongodb.ConnectionString
 import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
-import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.model.{CreateCollectionOptions, IndexOptions}
@@ -33,16 +32,17 @@ final class MongoConnect(mongoConfig: Config) extends StrictLogging {
     CollectionSettings.forMongoConfig(conf, collectionName)
   }
 
-  def collectionObservable(collectionName: String, basedOn: String = "common")(
-      implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
+  def collectionObservable(
+      collectionName: String,
+      basedOn: String = "common"): Observable[MongoCollection[Document]] = {
     val cs = settingsForCollection(collectionName, basedOn = basedOn)
     collectionObservable(cs)
   }
 
-  def collectionObservable(cs: CollectionSettings)(
-      implicit scheduler: Scheduler): Observable[MongoCollection[Document]] = {
+  def collectionObservable(
+      cs: CollectionSettings): Observable[MongoCollection[Document]] = {
     mongoDbResourceObservable.flatMap { db =>
-      Observable.fromFuture(cs.ensureCreated(db))
+      Observable.fromTask(cs.ensureCreated(db))
     }
   }
 

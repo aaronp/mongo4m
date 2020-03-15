@@ -38,10 +38,10 @@ trait ReactiveMongoSpec extends BasePipelinesMongoSpec with GivenWhenThen {
           .fromResource(connect.mongoDbResource)
           .flatMap { db =>
             // create a new collection from our database
-            val future = connect
+            val task = connect
               .settingsForCollection(s"test.dbquery${System.currentTimeMillis}")
               .ensureCreated(db)
-            Observable.fromFuture(future)
+            Observable.fromTask(task)
           }
           .doOnStart { coll =>
             // insert our test records

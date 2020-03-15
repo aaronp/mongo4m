@@ -16,19 +16,19 @@ class RichCollection(val collection: MongoCollection[Document])
     collection.insertOne(doc).monix
   }
 
-  def asObserver[T: Encoder]: Observer[T] = new Observer[T] with StrictLogging {
-    override def onNext(elem: T): Future[Ack] = {
-      val doc = BsonUtil.asDocument(elem)
-      collection.insertOne(doc).map(_ => Ack.Continue).head()
-    }
+  def asLoggingObserver[T: Encoder]: Observer[T] =
+    new Observer[T] with StrictLogging {
+      override def onNext(elem: T): Future[Ack] = {
+        val doc = BsonUtil.asDocument(elem)
+        collection.insertOne(doc).map(_ => Ack.Continue).head()
+      }
 
-    override def onError(ex: Throwable): Unit = {
-      logger.error(s"${collection}.onError($ex)")
-    }
+      override def onError(ex: Throwable): Unit = {
+        logger.error(s"${collection}.onError($ex)")
+      }
 
-    override def onComplete(): Unit = {
-      logger.info(s"${collection}.onComplete()")
+      override def onComplete(): Unit = {
+        logger.info(s"${collection}.onComplete()")
+      }
     }
-  }
-
 }
